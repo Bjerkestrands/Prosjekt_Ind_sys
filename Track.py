@@ -1,5 +1,6 @@
 import cv2
 import Kuka
+import ArUco
 from pyModbusTCP.client import ModbusClient
 import time
 import threading
@@ -70,6 +71,14 @@ while True:
         cv2.circle(frame, (x, y), 7, (0, 0, 0), -1)
         cv2.putText(frame, "Blue", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
         color = 4
+        
+    # create a perspectivematrix based on ArUco markers
+    check, matrix = aruco(frame)
+    
+    # Transform coordinates based on the perspective matrix
+    if check:
+      [relative_x, relative_y] = matrix_transform(matrix, [x, y], "coordinates")
+    
 
     # write variables for x- and y-position and color to modbus
     client.write_single_register(32001, x)
